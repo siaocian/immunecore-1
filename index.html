@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>儀器委託操作申請表</title>
+<style>
+  :root {
+    --accent: #2f6f4f;
+    --border: #d8d8d2;
+    --bg: #f7f6f2;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    background: var(--bg);
+    margin: 0;
+    padding: 40px 16px;
+    color: #2b2b28;
+  }
+  .card {
+    max-width: 520px;
+    margin: 0 auto;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 32px 28px;
+  }
+  h1 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 4px;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: #706f68;
+    margin: 0 0 28px;
+  }
+  label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    margin: 18px 0 6px;
+  }
+  input[type="text"], textarea {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: inherit;
+    resize: vertical;
+  }
+  input[type="text"]:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .required { color: #b23b3b; }
+  button {
+    margin-top: 28px;
+    width: 100%;
+    padding: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    background: var(--accent);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  button:disabled { opacity: 0.6; cursor: not-allowed; }
+  button:hover:not(:disabled) { background: #275d41; }
+  #msg {
+    margin-top: 16px;
+    font-size: 14px;
+    text-align: center;
+    display: none;
+  }
+  #msg.success { color: #2f6f4f; }
+  #msg.error { color: #b23b3b; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1>儀器委託操作申請表</h1>
+  <p class="subtitle">請填寫以下資訊，送出後將自動記錄。</p>
+
+  <form id="applyForm">
+    <label for="name">姓名 <span class="required">*</span></label>
+    <input type="text" id="name" name="name" required placeholder="請輸入姓名">
+
+    <label for="unit">單位 <span class="required">*</span></label>
+    <input type="text" id="unit" name="unit" required placeholder="請輸入所屬單位／實驗室">
+
+    <label for="equipment">委託儀器操作 <span class="required">*</span></label>
+    <textarea id="equipment" name="equipment" rows="3" required placeholder="請填寫委託操作之儀器名稱及操作項目"></textarea>
+
+    <button type="submit" id="submitBtn">送出申請</button>
+    <p id="msg"></p>
+  </form>
+</div>
+
+<script>
+  // 請將下面這一行換成你部署 Google Apps Script 後取得的網頁應用程式網址
+  const SCRIPT_URL = "https://script.google.com/macros/s/PASTE_YOUR_DEPLOYMENT_ID_HERE/exec";
+
+  const form = document.getElementById('applyForm');
+  const btn = document.getElementById('submitBtn');
+  const msg = document.getElementById('msg');
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    msg.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = '送出中...';
+
+    const formData = new FormData(form);
+
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: formData
+    })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        msg.textContent = '申請已送出，感謝您的填寫！';
+        msg.className = 'success';
+        msg.style.display = 'block';
+        form.reset();
+      })
+      .catch(function (err) {
+        msg.textContent = '送出失敗，請稍後再試，或聯繫系統管理員。';
+        msg.className = 'error';
+        msg.style.display = 'block';
+      })
+      .finally(function () {
+        btn.disabled = false;
+        btn.textContent = '送出申請';
+      });
+  });
+</script>
+
+</body>
+</html>
